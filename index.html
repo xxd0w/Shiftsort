@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shift Sort Visualization</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        background-color: #f4f4f4;
+    }
+    input, button {
+        padding: 10px;
+        font-size: 16px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        border: none; /* Removes default border styling */
+    }
+    button {
+        background-color: #007bff; /* Blue background */
+        color: white; /* White text color */
+        border-radius: 5px; /* Rounded corners */
+        cursor: pointer; /* Pointer cursor on hover */
+        transition: background-color 0.3s; /* Smooth color transition on hover */
+    }
+    button:hover {
+        background-color: #0056b3; /* Darker blue when hovered */
+    }
+    #result {
+        margin-top: 20px;
+        font-size: 18px;
+    }
+    .number {
+        display: inline-block;
+        margin: 2px;
+        padding: 10px;
+        background-color: #ddd;
+        transition: background-color 0.5s, transform 0.5s;
+    }
+    .active {
+        background-color: #add8e6; /* Light blue to indicate active processing */
+        transform: scale(1.1); /* Slightly enlarge active elements */
+    }
+</style>
+<script>
+function lsdBubbleInsertionSort() {
+    function getDigit(num, digitIndex) {
+        return Math.floor(num / Math.pow(10, digitIndex)) % 10;
+    }
+
+    function updateDisplay(arr, activeIndices = []) {
+        const container = document.getElementById('result');
+        container.innerHTML = ''; // Clear previous content
+        arr.forEach((value, index) => {
+            const elem = document.createElement('span');
+            elem.className = 'number' + (activeIndices.includes(index) ? ' active' : '');
+            elem.textContent = value;
+            container.appendChild(elem);
+        });
+    }
+
+    async function sortArrayByDigit(arr, digitIndex) {
+        let n = arr.length;
+        for (let i = 1; i < n; i++) {
+            let current = arr[i];
+            let j = i;
+            while (j > 0 && getDigit(arr[j - 1], digitIndex) > getDigit(current, digitIndex)) {
+                arr[j] = arr[j - 1]; // Shift operation
+                updateDisplay(arr, [j, j - 1]);
+                await sleep(300); // Pause for visual effect
+                j -= 1;
+            }
+            arr[j] = current;
+            updateDisplay(arr, [j]);
+            await sleep(300); // Pause for visual effect
+        }
+    }
+
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function startSorting() {
+        let arr = document.getElementById('inputArray').value.split(',').map(Number);
+        let maxDigits = Math.max(...arr).toString().length;
+
+        for (let digit = 0; digit < maxDigits; digit++) {
+            await sortArrayByDigit(arr, digit);
+        }
+
+        updateDisplay(arr); // Final update to clear active states
+    }
+
+    startSorting();
+}
+</script>
+</head>
+<body>
+<h2>Shift Sort Visualization</h2>
+<input type="text" id="inputArray" placeholder="Enter numbers separated by commas" value="170, 45, 75, 90, 802, 24, 2, 66">
+<button onclick="lsdBubbleInsertionSort()">Sort Numbers</button>
+<div id="result"></div>
+</body>
+</html>
